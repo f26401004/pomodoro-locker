@@ -1,0 +1,18 @@
+{
+  "manifest_version": 2,
+  "version": "1.0.0",
+  "name": "Pomodoro Locker",
+  "description": "Raise your concentration by locking certain website.",
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "browser_action": {
+    "default_popup": "index.html"
+  },
+  "icons": {
+    "16": "logo192.png",
+    "48": "logo192.png",
+    "128": "logo512.png"
+  },
+  "permissions": ["activeTab", "declarativeContent", "storage", "tabs"]
+}
