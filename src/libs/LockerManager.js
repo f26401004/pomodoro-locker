@@ -3,8 +3,16 @@ class LockerManager {
     sessions = []
     tabs = []
     constructor (sessions) {
-        // TODO: retrieve the session from storage.
-        this.sessions = sessions
+        // Retrieve the session from storage and merge it with the constructor's argument.
+        this.sessions = JSON.parse(window.localStorage['sessions'])
+        sessions.forEach(target => {
+            const targetSession = this.sessions.find(iter => iter.origin === target.origin)
+            if (targetSession) {
+                targetSession.tabs = [...new Set([...targetSession.tabs, ...target.tabs])]
+            } else {
+                this.sessions.push(target)
+            }
+        })
         // Send lock message to client when the lcoker manager starts up.
         chrome.tabs.query({}, result => {
             result.forEach(target => {
@@ -26,13 +34,16 @@ class LockerManager {
                 })
             })
         })
-        // Detect the update among the tabs
-        chrome.tabs.addEventListener('updated', (tabId, changeInfo) => {
-            // TODO: lock the site if it is listed in the session and has endTime.
-        })
-        // Detec the remove among the tabs 
+        // Detect the removal among the tabs.
         chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
-            // TODO: remove the tab Id in sessions.
+            // Remove the tab Id in sessions.
+            for (let i = 0; i < this.sessions.length; ++i) {
+                const index = this.sessions[i].tabs.findIndex(target => target === tabId)
+                if (index !== -1) {
+                    this.sessions[i].tabs.splice(index, 1)
+                    return
+                }
+            }
         })
     }
 

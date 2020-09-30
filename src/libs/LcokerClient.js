@@ -1,10 +1,17 @@
 import Timer from "./Timer"
 
+const pomodoroTemplate = `
+    <div style="width: 100vw; height: 100vh; display: flex; justify-items: center; justify-content: center; align-items: center; align-content: center;">
+        <time id="displayTimeString"></time>
+    </div>
+`
+
 class LockerClient {
     url = null
     tabId = null
     endTime = null
     timer = null
+    displayTimeString = null
     constructor (url) {
         this.url = url
         // Obtain the current tab Id by message
@@ -26,16 +33,24 @@ class LockerClient {
     }
 
     pong (request) {
-        // TODO: If current url is not allowed to access, then lock the current site.
+        // If current url is not allowed to access, then lock the current site.
+        if (request.options.endTime && new Date() - new Date(request-options.endTime) < 0) {
+            this.lock(request.options.endTime)
+        }
     }
 
     lock (endTime) {
         this.endTime = endTime
-        // TODO: wipe all content of the tab.
+        // Wipe all content of the tab.
+        document.body.innerHTML = pomodoroTemplate
+
         // Start the internal second timer to emit second countdown event for rendering the countdown timer on the site.
         this.timer = new Timer(endTime)
-        this.timer.on('clock', () => {
-            // TODO: render the rest countdown time on the screen.
+        this.timer.on('clock', (timeString) => {
+            this.displayTimeString = timeString
+            // Render the rest countdown time on the screen.
+            const targetDOM = document.querySelector('#displayTimeString')
+            targetDOM.innerText = timeString
         })
         this.timer.on('timeout', this.unlock)
     }
@@ -48,7 +63,8 @@ class LockerClient {
                 url: this.url
             }
         })
-        // TODO: refresh the current tab to obtain the original web content.
+        // Refresh the current tab to obtain the original web content.
+        window.location.reload()
     }
 }
 
