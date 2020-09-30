@@ -9,6 +9,7 @@ class LockerManager {
             // Filter out the expired records
             this.sessions = this.sessions.filter(target => new Date() - new Date(target.endTime) < 0)
         }
+        console.log(sessions)
         sessions.forEach(target => {
             const targetSession = this.sessions.find(iter => iter.origin === target.origin)
             if (targetSession) {
@@ -122,4 +123,4 @@ class LockerManager {
     }
 }
 
-export default new LockerManager()
+export default new LockerManager([])

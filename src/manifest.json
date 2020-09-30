@@ -19,9 +19,9 @@
     }
   ],
   "icons": {
-    "16": "logo192.png",
-    "48": "logo192.png",
-    "128": "logo512.png"
+    "16": "icons/logo192.png",
+    "48": "icons/logo192.png",
+    "128": "icons/logo512.png"
   },
   "permissions": ["activeTab", "declarativeContent", "storage", "tabs"]
 }

@@ -1,8 +1,8 @@
 import LockerManager from './libs/LockerManager.js'
 
-// config the channel instance in window
+// Config the channel instance in window
 window.__POMODORO_ = {
-  lockerManager: new LockerManager()
+  lockerManager: LockerManager
 }
 
 try {

@@ -3,12 +3,14 @@ import ReactDOM from 'react-dom'
 import Routes from './Routes.js'
 import './styles/index.css'
 
+window.__POMODORO__ = {
+  client: null
+}
+
 ReactDOM.render(
   <React.StrictMode>
-      <main>
-        <Routes>
-        </Routes>
-      </main>
+    <Routes>
+    </Routes>
   </React.StrictMode>,
   document.getElementById('root')
 )
