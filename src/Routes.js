@@ -1,3 +1,4 @@
+import React from 'react'
 import { BrowserRouter, Switch, Route } from 'react-router-dom'
 // the components related to general purpose for end-users
 import MainPage from './pages/MainPage.js'
@@ -13,7 +14,7 @@ import ManagePage from './pages/session/ManagePage.js'
 
 
 
-const Route = () => (
+const Router = () => (
     <BrowserRouter>
         <Switch>
             <Route path="/" component={MainPage}></Route>
@@ -26,4 +27,4 @@ const Route = () => (
     </BrowserRouter>
 )
 
-export default Route
+export default Router
