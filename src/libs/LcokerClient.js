@@ -7,16 +7,26 @@ const pomodoroTemplate = `
 `
 
 class LockerClient {
-    url = null
+    host = null
     tabId = null
     endTime = null
     timer = null
     displayTimeString = null
+    timerDOM = null
     constructor (url) {
-        this.url = url
-        // Obtain the current tab Id by message
+        const url = new URL(url)
+        this.host = url.host
+        // Obtain the current tab ID by message
         chrome.runtime.sendMessage({ text: 'what is my tab id?' }, res => {
-            this.tabId = request.options.tabId
+            this.tabId = res.options.tabId
+            // Send ping message to lock manager after retrieving tab ID.
+            chrome.runtime.sendMessage({
+                type: 'ping',
+                options: {
+                    host: this.host,
+                    tabId: this.tabId
+                }
+            })
         })
     }
     startListening () {
@@ -43,14 +53,16 @@ class LockerClient {
         this.endTime = endTime
         // Wipe all content of the tab.
         document.body.innerHTML = pomodoroTemplate
-
+        this.timerDOM = document.querySelector('#displayTimeString')
         // Start the internal second timer to emit second countdown event for rendering the countdown timer on the site.
         this.timer = new Timer(endTime)
         this.timer.on('clock', (timeString) => {
             this.displayTimeString = timeString
+            if (!this.timerDOM) {
+                return
+            }
             // Render the rest countdown time on the screen.
-            const targetDOM = document.querySelector('#displayTimeString')
-            targetDOM.innerText = timeString
+            this.timerDOM.innerText = timeString
         })
         this.timer.on('timeout', this.unlock)
     }
@@ -60,7 +72,7 @@ class LockerClient {
         chrome.runtime.sendMessage({
             type: 'unlock',
             options: {
-                url: this.url
+                origin: this.origin
             }
         })
         // Refresh the current tab to obtain the original web content.

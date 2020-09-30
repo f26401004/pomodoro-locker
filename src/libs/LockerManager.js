@@ -1,10 +1,15 @@
 
 class LockerManager {
-    sessions = []
-    tabs = []
+    sessions = [] // the session array
+    client = null // the client information
+
     constructor (sessions) {
         // Retrieve the session from storage and merge it with the constructor's argument.
-        this.sessions = JSON.parse(window.localStorage['sessions'])
+        if (window.localStorage['sessions']) {
+            this.sessions = JSON.parse(window.localStorage['sessions'])
+            // Filter out the expired records
+            this.sessions = this.sessions.filter(target => new Date() - new Date(target.endTime) < 0)
+        }
         sessions.forEach(target => {
             const targetSession = this.sessions.find(iter => iter.origin === target.origin)
             if (targetSession) {
@@ -13,10 +18,11 @@ class LockerManager {
                 this.sessions.push(target)
             }
         })
-        // Send lock message to client when the lcoker manager starts up.
+        // Send lock message to client when the locker manager starts up.
         chrome.tabs.query({}, result => {
             result.forEach(target => {
-                const targetSession = this.sessions.find(iter => target.url.indexOF(iter.origin) !== -1)
+                const url = new URL(target.url)
+                const targetSession = this.sessions.find(iter => url.host === iter.host)
                 if (!targetSession) {
                     return
                 }
@@ -36,7 +42,7 @@ class LockerManager {
         })
         // Detect the removal among the tabs.
         chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
-            // Remove the tab Id in sessions.
+            // Remove the tab ID in sessions.
             for (let i = 0; i < this.sessions.length; ++i) {
                 const index = this.sessions[i].tabs.findIndex(target => target === tabId)
                 if (index !== -1) {
@@ -55,8 +61,22 @@ class LockerManager {
                 case 'ping':
                     this.pong(request)
                     break
+                case 'client_info':
+                    this.client = request.options
+                    break
                 case 'count_end':
                     this.removeSession(request)
+                    break
+                case 'get_sessions':
+                    chrome.runtime.sendMessage({
+                        type: 'session_information',
+                        options: {
+                            sessions: this.sessions
+                        }
+                    })
+                    break
+                case 'add_session':
+                    this.addSession(request)
                     break
             }
         })
@@ -68,36 +88,38 @@ class LockerManager {
             type: 'pong'
         })
         // Save the current tab into session.
-        const tabRe = new RegExp(`^${request.options.origin}`)
-        const targetSession = this.sessions.find(target => target.indexOf(target.origin) !== -1)
+        const targetSession = this.sessions.find(target => target.regexp.match(request.options.host) !== -1)
         if (!targetSession) {
-            this.sessions.push({
-                origin: request.options.origin,
-                tabs: [request.tabId],
-                endTime: null
-            })
-        } else {
-            // Only add the tab id if it does not present in session.
-            // Redundant ping might occur when user refresh the same page.
-            if (!targetSession.tabs.includes(target.options.tabId)) {
-                targetSession.tabs.push(request.options.tabId)
+            return
+        }
+        // Remove the session if current time surpass the end time.
+        if (targetSession.endTime && new Date() - new Date(target.endTime) > 0) {
+            this.removeSession(request)
+            return
+        }
+        // Send lock message to tab
+        chrome.runtime.sendMessage({
+            type: 'lock',
+            options: {
+                endTime: targetSession.endTime
             }
-        }
-        // If the current tab  url is forbidden, then send lock message to tab
-        if (targetSession.endTime && new Date() - new Date(target.endTime) < 0) {
-            chrome.runtime.sendMessage({
-                type: 'lock',
-                options: {
-                    endTime: target.endTime
-                }
-            })
-        }
+        })
     }
 
-    addSession ()
+    addSession (request) {
+        this.sessions.push({
+            host: request.options.host,
+            tabs: [request.options.tabId],
+            regexp: new RegExp(`^(https|http):\/\/${request.options.host}`)
+        })
+    }
 
     removeSession (request) {
-
+        const index = this.sessions.findIndex(target => target.regexp.match(request.options.host))
+        if (index === -1) {
+            return
+        }
+        this.sessions.splice(index, 1)
     }
 }
 
