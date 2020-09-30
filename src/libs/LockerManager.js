@@ -1,9 +1,8 @@
-
 class LockerManager {
-    sessions = [] // the session array
-    client = null // the client information
-
     constructor (sessions) {
+        this.sessions = [] // the session array
+        this.client = null // the client information
+
         // Retrieve the session from storage and merge it with the constructor's argument.
         if (window.localStorage['sessions']) {
             this.sessions = JSON.parse(window.localStorage['sessions'])

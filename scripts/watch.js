@@ -30,13 +30,25 @@ config.entry = config.entry.filter(function(entry) {
 
 // Edit the Webpack config by setting the output directory to "./build".
 config.output.path = paths.appBuild
-paths.publicUrl = paths.appBuild + "/"
+paths.publicUrl = paths.appBuild + "/"  
 
 // Add the webpack-extension-reloader plugin to the Webpack config.
 // It notifies and reloads the extension on code changes.
 config.plugins.push(new ExtensionReloader({
     reloadPage: true
 }))
+
+// Add background and content script into config
+config.entry = {
+  main: config.entry[0],
+  background: `${paths.appSrc}/chrome/background.js`,
+  content: `${paths.appSrc}/chrome/content.js`
+}
+// config.output.
+config.output.filename = 'static/js/[id].js'
+console.log(config)
+
+fs.emptyDirSync(paths.appBuild)
 
 // Start Webpack in watch mode.
 const compiler = webpack(config)
@@ -47,8 +59,7 @@ const watcher = compiler.watch({}, function(err) {
     // Every time Webpack finishes recompiling copy all the assets of the
     // "public" dir in the "build" dir (except for the index.html)
     fs.copySync(paths.appPublic, paths.appBuild, {
-      dereference: true,
-      filter: file => file !== paths.appHtml
+      dereference: true
     })
     // Report on console the succesfull build
     console.clear()

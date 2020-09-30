@@ -7,15 +7,17 @@ const pomodoroTemplate = `
 `
 
 class LockerClient {
-    host = null
-    tabId = null
-    endTime = null
-    timer = null
-    displayTimeString = null
-    timerDOM = null
+    
     constructor (url) {
-        const url = new URL(url)
-        this.host = url.host
+        this.host = null
+        this.tabId = null
+        this.endTime = null
+        this.timer = null
+        this.displayTimeString = null
+        this.timerDOM = null
+        
+        const urlInstance= new URL(url)
+        this.host = urlInstance.host
         // Obtain the current tab ID by message
         chrome.runtime.sendMessage({ text: 'what is my tab id?' }, res => {
             this.tabId = res.options.tabId

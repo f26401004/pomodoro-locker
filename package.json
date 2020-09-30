@@ -10,15 +10,11 @@
     "copy-webpack-plugin": "^6.1.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-router-dom": "^5.2.0",
-    "react-scripts": "3.4.3"
+    "react-router-dom": "^5.2.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "watch": "./scripts/watch.js",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "dev": "webpack --config webpack.dev.js",
+    "build": "webpack --config webpack.prod.js"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -36,6 +32,15 @@
     ]
   },
   "devDependencies": {
-    "webpack-extension-reloader": "^1.1.4"
+    "@babel/core": "^7.11.6",
+    "@babel/preset-env": "^7.11.5",
+    "@babel/preset-react": "^7.10.4",
+    "babel-loader": "^8.1.0",
+    "css-loader": "^4.3.0",
+    "style-loader": "^1.2.1",
+    "webpack": "^4.44.2",
+    "webpack-cli": "^3.3.12",
+    "webpack-extension-reloader": "^1.1.4",
+    "webpack-merge": "^5.1.4"
   }
 }

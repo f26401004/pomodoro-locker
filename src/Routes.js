@@ -17,10 +17,10 @@ import ManagePage from './pages/session/ManagePage.js'
 const Router = () => (
     <BrowserRouter>
         <Switch>
-            <Route path="/" component={MainPage}></Route>
+            {/* <Route path="/" component={MainPage}></Route> */}
             <Route path="/help" component={HelpPage}></Route>
             <Route path="/account" component={AccountPage}></Route>
-            <Route path="/account/login" component={LoginPage}></Route>
+            <Route path="/" component={LoginPage}></Route>
             <Route path="/account/register" component={RegisterPage}></Route>
             <Route path="/manage" component={ManagePage}></Route>
         </Switch>

@@ -1,4 +1,4 @@
-import LockerClient from '../src/libs/LcokerClient.js'
+import LockerClient from './libs/LcokerClient.js'
 
 let client = null
 
