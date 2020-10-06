@@ -1,4 +1,4 @@
-import Timer from "./Timer"
+import Timer from "./timer"
 
 const pomodoroTemplate = `
     <div style="width: 100vw; height: 100vh; display: flex; justify-items: center; justify-content: center; align-items: center; align-content: center;">

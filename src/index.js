@@ -1,8 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import Routes from './Routes.js'
+import Routes from './routes.js'
 import { Provider } from 'react-redux'
-import store from './store'
+import store from './redux'
 import './styles/index.css'
 
 window.__POMODORO__ = {
