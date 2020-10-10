@@ -1,4 +1,5 @@
 import React from 'react'
+// connect and pass the redux action into component
 import { connect } from 'react-redux'
 import { createContext, updateContext, createSessionToContext, updateSessionInContext, deleteSessionInContext, deleteContext } from '../../redux/actions/Context.js'
 
@@ -7,7 +8,6 @@ const mapStateToProps = (state) => {
     context: state.Context
   }
 }
-
 const mapDispatchToProps = (dispatch) => {
   return {
     createContext: (target) => dispatch(createContext(target)),
@@ -18,7 +18,6 @@ const mapDispatchToProps = (dispatch) => {
     deleteContext: (target) => dispatch(deleteContext(target))
   }
 }
-
 
 class ManageTab extends React.PureComponent {
 

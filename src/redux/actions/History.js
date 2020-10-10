@@ -20,12 +20,12 @@ export const createHistory = payload => ({
 })
 
 
-export const updateHistroy = payload => ({
+export const updateHistory = payload => ({
   type: 'UPDATE_HISTORY',
   payload
 })
 
-export const deleteHistroy = payload => ({
-  type: 'DELETE_HISTROY',
+export const deleteHistory = payload => ({
+  type: 'DELETE_HISTORY',
   payload
 })
