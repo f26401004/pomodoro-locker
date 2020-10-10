@@ -1,18 +1,3 @@
-/**
- * state: {
- *  'contextID': {
- *      title: String,
- *      sessions: {
- *          'sessionID': {
- *              host: String,
- *              endTime: Date
- *          }
- *      }
- *  }
- * }
- */
-
-
 export const createContext = payload => ({
     type: 'CREATE_CONTEXT',
     payload

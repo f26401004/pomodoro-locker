@@ -7,7 +7,6 @@ import Typography from '@material-ui/core/Typography'
 import IconButton from '@material-ui/core/IconButton'
 import Tabs from '@material-ui/core/Tabs'
 import Tab from '@material-ui/core/Tab'
-import Box from '@material-ui/core/Box'
 
 import ManageTab from '../components/context/ManageTab.js'
 import HistoryTab from '../components/context/HistoryTab.js'
@@ -24,10 +23,14 @@ import SwipeableViews from 'react-swipeable-views'
 const styles = theme => ({
   root: {
     width: '100%',
-    height: '100%',
+    height: '100vh',
   },
   tabRoot: {
     width: '100%'
+  },
+  tabPanelRoot: {
+    width: '100%',
+    height: 'calc(100vh - 104px)'
   }
 })
 
@@ -53,11 +56,21 @@ function GenerateTabLabel (index) {
     {name: 'Ranking', icon: <AssessmentIcon/>},
   ]
   return (
-    <Grid container spacing={1} justify="center" alignItems="center">
-      <Grid container item xs={3}>
+    <Grid
+      container
+      spacing={1}
+      justify="center"
+      alignItems="center">
+      <Grid
+        container
+        item
+        xs={3}>
         {tabs[index].icon}
       </Grid>
-      <Grid container item xs={7}>
+      <Grid
+        container
+        item
+        xs={7}>
         {tabs[index].name}
       </Grid>
     </Grid>
@@ -114,7 +127,7 @@ class MainPage extends React.PureComponent {
         justify="center"
         alignContent="flex-start"> 
         <Grid container item>
-          <AppBar position="relative">
+          <AppBar position="relative" elevation={0}>
             <Toolbar>
               <Grid
                 container
@@ -176,29 +189,31 @@ class MainPage extends React.PureComponent {
         </Grid>
         <Grid direction="row" container item>
           <Grid container item>
-            <Tabs
-              className={classes.root}
-              value={this.state.currentTabIndex}
-              onChange={this.handleTabChange}
-              indicatorColor="primary"
-              textColor="primary"
-              variant="fullWidth">
-              <Tab label={GenerateTabLabel(0)}  id="full-width-tab-0" aria-controls="full-width-tabpanel-0"/>
-              <Tab label={GenerateTabLabel(1)} id="full-width-tab-1" aria-controls="full-width-tabpanel-1"/>
-              <Tab label={GenerateTabLabel(2)} id="full-width-tab-2" aria-controls="full-width-tabpanel-2"/>
-            </Tabs>
+            <Paper className={classes.tabRoot} elevation={3}>
+              <Tabs
+                value={this.state.currentTabIndex}
+                onChange={this.handleTabChange}
+                indicatorColor="primary"
+                textColor="primary"
+                variant="fullWidth">
+                <Tab label={GenerateTabLabel(0)}  id="full-width-tab-0" aria-controls="full-width-tabpanel-0"/>
+                <Tab label={GenerateTabLabel(1)} id="full-width-tab-1" aria-controls="full-width-tabpanel-1"/>
+                <Tab label={GenerateTabLabel(2)} id="full-width-tab-2" aria-controls="full-width-tabpanel-2"/>
+              </Tabs>
+            </Paper>
           </Grid>
           <Grid container item>
             <SwipeableViews
               // axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
+              className={classes.tabPanelRoot}
               index={this.state.currentTabIndex}>
-              <TabPanel value={this.state.currentTabIndex} index={0}>
+              <TabPanel value={this.state.currentTabIndex} index={0} className={classes.tabPanelRoot}>
                 <ManageTab/>
               </TabPanel>
-              <TabPanel value={this.state.currentTabIndex} index={1}>
+              <TabPanel value={this.state.currentTabIndex} index={1} className={classes.tabPanelRoot}>
                 <HistoryTab/>
               </TabPanel>
-              <TabPanel value={this.state.currentTabIndex} index={2}>
+              <TabPanel value={this.state.currentTabIndex} index={2} className={classes.tabPanelRoot}>
                 <RankingTab/>
               </TabPanel>
             </SwipeableViews>

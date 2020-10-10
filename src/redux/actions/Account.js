@@ -1,16 +1,3 @@
-/**
- * state: {
- *  username: String,
- *  email: String,
- *  ranking: Number,
- *  record: {
- *      totalSession: Number,
- *      totalTime: Number,
- *      sync: Boolean
- *  }
- * }
- */
-
 export const login = payload => ({
     type: 'LOGIN',
     payload
