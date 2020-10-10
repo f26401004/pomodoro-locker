@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux'
-import account from './account'
-import context from './context'
+import account from './Account.js'
+import context from './Context.js'
 
 const rootReducer = combineReducers({
     account,

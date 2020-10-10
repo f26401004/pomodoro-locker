@@ -6,31 +6,38 @@ import Typography from '@material-ui/core/Typography'
 import IconButton from '@material-ui/core/IconButton'
 
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
-import { ClickAwayListener, Grow, MenuItem, MenuList, Paper, Popper } from '@material-ui/core'
+import { ClickAwayListener, Grid, Grow, MenuItem, MenuList, Paper, Popper } from '@material-ui/core'
 
-class MainPage extends React.Component {
+class MainPage extends React.PureComponent {
     constructor (props) {
         super(props)
-        this.auth = true
-        this.open = false
-        this.anchorRef = React.createRef()
+        // initialize state in component
+        this.state = {
+            auth: true,
+            open: false,
+            anchorRef: React.createRef()
+        }
+        // pre-bind the function
+        this.handleToggle = this.handleToggle.bind(this)
+        this.handleClose = this.handleClose.bind(this)
+        this.handleListKeyDown = this.handleListKeyDown.bind(this)
     }
 
     handleToggle () {
-        this.open = !this.open
+        this.setState({ open: !this.open })
     }
 
     handleClose (event) {
-        if (this.anchorRef.current && this.anchorRef.current.contains(event.target)) {
+        if (this.state.anchorRef.current && this.state.anchorRef.current.contains(event.target)) {
             return
         }
-        this.open = false
+        this.setState({ open: false })
     }
 
     handleListKeyDown (event) {
         if (event.key === 'Tab') {
             event.preventDefault()
-            this.open = false
+            this.setState({ open: false })
         }
     }
 
@@ -38,44 +45,61 @@ class MainPage extends React.Component {
         return (
             <AppBar>
                 <Toolbar>
-                    <img />
-                    <Typography variant="h6">
-                        Pomodoro Locker
-                    </Typography>
-                    {this.auth && (
-                        <IconButton
-                            ref={this.anchorRef}
-                            aria-label="account of current user"
-                            aria-controls="menu-appbar"
-                            aria-haspopup="true"
-                            onClick={this.handleToggle}
-                            color="inherit">
-                            <AccountCircleIcon/>
-                            <Popper
-                                open={this.open}
-                                anchorEl={this.anchorRef}
-                                role={undefined}
-                                transition
-                                disablePortal>
-                                {({ TransitionProps }) => (
-                                    <Grow
-                                        {...TransitionProps}
-                                        style={{ transformOrigin: 'center top' }}>
-                                        <Paper>
-                                            <ClickAwayListener onClickAway={this.handleClose}>
-                                                <MenuList autoFocusItem={this.open}
-                                                    id="menu-list-grow"
-                                                    onKeyDown={this.handleListKeyDown}>
-                                                    <MenuItem> Profile </MenuItem>
-                                                    <MenuItem> Logout </MenuItem>
-                                                </MenuList>
-                                            </ClickAwayListener>
-                                        </Paper>
-                                    </Grow>
-                                )}
-                            </Popper>
-                        </IconButton>
-                    )}
+                    <Grid
+                        container
+                        justify="space-between"
+                        alignItems="center">
+                        <Grid
+                            container
+                            item
+                            xs={5}>
+                            <img />
+                            <Typography variant="h6">
+                                Pomodoro Locker
+                            </Typography>
+                        </Grid>
+                        <Grid
+                            container
+                            item
+                            xs={1}>
+                            {this.state.auth && (
+                                <div>
+                                    <IconButton
+                                        ref={this.state.anchorRef}
+                                        aria-controls={this.state.open ? 'menu-list-grow' : undefined}
+                                        aria-haspopup="true"
+                                        onClick={this.handleToggle}
+                                        color="inherit">
+                                        <AccountCircleIcon/>
+                                    </IconButton>
+                                    <Popper
+                                        open={this.state.open}
+                                        anchorEl={this.state.anchorRef.current}
+                                        role={undefined}
+                                        transition
+                                        disablePortal>
+                                        {({ TransitionProps, placement }) => (
+                                            <Grow
+                                                {...TransitionProps}
+                                                style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}>
+                                                <Paper>
+                                                    <ClickAwayListener onClickAway={this.handleClose}>
+                                                        <MenuList autoFocusItem={this.state.open}
+                                                            id="menu-list-grow"
+                                                            onKeyDown={this.handleListKeyDown}>
+                                                            <MenuItem> Profile </MenuItem>
+                                                            <MenuItem> Logout </MenuItem>
+                                                        </MenuList>
+                                                    </ClickAwayListener>
+                                                </Paper>
+                                            </Grow>
+                                        )}
+                                    </Popper>
+                                </div>
+                                
+                            )}
+                        </Grid>
+                    </Grid>
                 </Toolbar>
             </AppBar>
         )

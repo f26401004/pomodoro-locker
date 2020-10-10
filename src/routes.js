@@ -9,22 +9,16 @@ import AccountPage from './pages/account/AccountPage.js'
 import LoginPage from './pages/account/LoginPage.js'
 import RegisterPage from './pages/account/RegisterPage.js'
 
-// the components related to the main function of pomodoro locker
-import ManagePage from './pages/context/ManagePage.js'
-
-
-
 const Router = () => (
-    <BrowserRouter>
-        <Switch>
-            <Route path="/" component={MainPage}></Route>
-            <Route path="/help" component={HelpPage}></Route>
-            <Route path="/account" component={AccountPage}></Route>
-            <Route path="/account/login" component={LoginPage}></Route>
-            <Route path="/account/register" component={RegisterPage}></Route>
-            <Route path="/manage" component={ManagePage}></Route>
-        </Switch>
-    </BrowserRouter>
+  <BrowserRouter>
+    <Switch>
+      <Route path="/" component={MainPage}></Route>
+      <Route path="/help" component={HelpPage}></Route>
+      <Route path="/account" component={AccountPage}></Route>
+      <Route path="/account/login" component={LoginPage}></Route>
+      <Route path="/account/register" component={RegisterPage}></Route>
+    </Switch>
+  </BrowserRouter>
 )
 
 export default Router
