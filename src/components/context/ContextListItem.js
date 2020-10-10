@@ -10,6 +10,7 @@ import Grid from '@material-ui/core/Grid'
 
 const styles = theme => ({
   root: {
+    width: '100%'
   },
   text: {
     display: 'inline-block',
@@ -24,7 +25,7 @@ const styles = theme => ({
     width: '36px',
     height: '36px',
     transition: 'opacity 100ms ease-in-out',
-    opacity: 0,
+    opacity: 0.2,
     color: '#4285f4',
     '&:hover': {
       opacity: '1'
@@ -78,14 +79,14 @@ class ContextListItem extends React.PureComponent {
         <ListItem
           button
           className={classes.root}
-          style={{ backgroundColor: checked ? 'rgba(66, 33, 244, 0.18)' : null, height: '48px' }}>
+          style={{ backgroundColor: checked ? 'rgba(66, 33, 244, 0.18)' : null,  height: '48px'}}>
           <Grid container spacing={2} justify='flex-start' alignContent='center' alignItems='center'>
-            <Grid item xs={2}>
+            <Grid item xs={1}>
               <ListItemIcon>
                 <AccessAlarmIcon className={checked ? classes.checkedStyle : null} />
               </ListItemIcon>
             </Grid>
-            <Grid item xs={8}>
+            <Grid item xs={9}>
               <ListItemText primary={context.title} classes={{ primary: `${classes.text} ${checked ? classes.checkedStyle : null}` }} />
             </Grid>
             <Grid item xs={2}>

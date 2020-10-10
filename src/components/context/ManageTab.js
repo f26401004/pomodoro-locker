@@ -3,11 +3,16 @@ import { withStyles } from '@material-ui/core/styles'
 import { FixedSizeList } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { Scrollbars } from 'react-custom-scrollbars'
+import Tooltip from '@material-ui/core/Tooltip'
+
+import IconButton from '@material-ui/core/IconButton'
+import CheckboxIcon from '@material-ui/icons/CheckBox'
+import DeleteIcon from '@material-ui/icons/Delete'
 
 // connect and pass the redux action into component
 import { connect } from 'react-redux'
 import { createContext, updateContext, createSessionToContext, updateSessionInContext, deleteSessionInContext, deleteContext } from '../../redux/actions/Context.js'
-import { Collapse, Grid, List, ListSubheader, TextField } from '@material-ui/core'
+import { Collapse, Grid, List, ListSubheader, Paper, TextField } from '@material-ui/core'
 
 import ContextListItem from './ContextListItem.js'
 
@@ -34,17 +39,46 @@ const styles = theme => ({
     boxSizing: 'border-box',
     height: '100%'
   },
-  listRoot: {
+  operationButton: {
+    width: '40px',
+    height: '40px',
+    padding: '0'
+  },
+  operationLabel: {
+    color: '#4285f4',
+    margin: '0'
   }
 })
 
 
 // HOS for operation container
 function OperationContainer (props) {
-  return
+  return (
+    <Paper elevation={0}>
+      <Grid container alignContent='center' alignItems='center' >
+        <Grid item xs={2}>
+          <Tooltip title='Delete' style={{ fontSize: '10px' }}>
+            <IconButton className={props.classes.operationButton} aria-label='delete' onClick={props.onDelete}>
+              <DeleteIcon style={{ fill: '#4285f4' }} />
+            </IconButton>
+          </Tooltip>
+        </Grid>
+        <Grid item xs={2}>
+          <Tooltip title='Select all' style={{ fontSize: '10px' }}>
+            <IconButton className={props.classes.operationButton} aria-label='select-all' onClick={props.onSelectAll}>
+              <CheckboxIcon style={{ fill: '#4285f4' }} />
+            </IconButton>
+          </Tooltip>
+        </Grid>
+        <Grid item xs={4} style={{ textAlign: 'right' }}>
+          <label className={props.classes.operationLabel}> {`選擇 ${props.selectedContextsID.length} 項`} </label>
+        </Grid>
+      </Grid>
+    </Paper>
+  )
 }
 
-// HOC for virtualized list
+// HOC for virtualized list row
 function ListRow ({ index, style, data }) {
   const { contexts, filteredContextsID, selectedContextsID, selectContext, unselectContext } = data
   const targetContextID = filteredContextsID[index]
@@ -106,7 +140,7 @@ class ManageTab extends React.PureComponent {
     const { deleteContext } = this.props
     return (
       <div className={classes.root}>
-        <Grid container spacing={2} direction="row" justify="flex-start" alignContent="flex-start" style={{ height: '100%' }}>
+        <Grid container direction="row" justify="flex-start" alignContent="flex-start" style={{ height: '100%' }}>
           <Grid container item>
             <TextField label="Search contexts" variant="outlined" size="small" fullWidth></TextField>
           </Grid>
@@ -119,9 +153,9 @@ class ManageTab extends React.PureComponent {
                 autoHideDuration={500}>
                 <ListSubheader
                   className={classes.header}
-                  key='operation-container'>
+                  key="operation-container">
                   <Collapse in={this.state.selectedContextsID.length > 0} mountOnEnter unmountOnExit style={{ transformOrigin: '0 0 0' }} timeout={100}>
-                    <OperationContainer />
+                    <OperationContainer classes={classes} selectedContextsID={this.state.selectedContextsID} />
                   </Collapse>
                 </ListSubheader>
                 <AutoSizer>
@@ -131,7 +165,7 @@ class ManageTab extends React.PureComponent {
                         <React.Fragment>
                           <FixedSizeList
                             height={height}
-                            width={width - 12}
+                            width={width - 16}
                             ref={this.state.listRef}
                             itemCount={this.state.filteredContextsID.length}
                             itemData={{
