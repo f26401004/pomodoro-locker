@@ -18,7 +18,7 @@ export default (state = {
     title: 'Test Context',
     sessions: {
       'test_session_123': {
-        hots: 'facebook.com',
+        host: 'facebook.com',
         endTime: new Date(Date.now + 1000 * 60 * 60)
       }
     }

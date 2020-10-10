@@ -116,6 +116,7 @@ class ManageTab extends React.PureComponent {
 
     this.selectContext = this.selectContext.bind(this)
     this.unselectContext = this.unselectContext.bind(this)
+    this.handleSearchKeyChange = this.handleSearchKeyChange.bind(this)
   }
 
   selectContext (contextID) {
@@ -132,17 +133,33 @@ class ManageTab extends React.PureComponent {
     this.setState({ selectedContextsID: this.state.selectedContextsID.filter(target => target !== contextID) })
   }
 
+  handleSearchKeyChange (event) {
+    // Set the search key value first
+    this.setState({ searchKey: event.target.value })
+    // Recover the filteredContextsID directly if the search key value is empty
+    if (event.target.value.length === 0) {
+      this.setState({ filteredContextsID: Object.keys(this.props.context) })
+      return
+    }
+    // Filter the filteredContextsID by context title and sessions' host in the context
+    this.setState({ filteredContextsID: Object.entries(this.props.context)
+      .filter(target => target[1].title.indexOf(event.target.value) !== -1 ||
+        Object.values(target[1].sessions).find(iter => iter.host.indexOf(event.target.value) !== -1))
+      .map(tagret => target[0])
+    })
+  }
+
 
   render () {
-    // extract the context object from props
+    // Extract the context object from props
     const { context, classes } = this.props
-    // extract the handler from props
+    // Extract the handler from props
     const { deleteContext } = this.props
     return (
       <div className={classes.root}>
         <Grid container direction="row" justify="flex-start" alignContent="flex-start" style={{ height: '100%' }}>
           <Grid container item>
-            <TextField label="Search contexts" variant="outlined" size="small" fullWidth></TextField>
+            <TextField label="Search contexts" variant="outlined" size="small" fullWidth value={this.state.searchKey} onChange={this.handleSearchKeyChange}></TextField>
           </Grid>
           <Grid container item style={{ height: 'calc(100% - 56px)' }}>
             <List style={{ width: '100%' }}>

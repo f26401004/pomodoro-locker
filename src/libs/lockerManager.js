@@ -9,7 +9,6 @@ class LockerManager {
             // Filter out the expired records
             this.sessions = this.sessions.filter(target => new Date() - new Date(target.endTime) < 0)
         }
-        console.log(sessions)
         sessions.forEach(target => {
             const targetSession = this.sessions.find(iter => iter.origin === target.origin)
             if (targetSession) {
@@ -18,6 +17,7 @@ class LockerManager {
                 this.sessions.push(target)
             }
         })
+        console.log(this.sessions)
         // Send lock message to client when the locker manager starts up.
         chrome.tabs.query({}, result => {
             result.forEach(target => {
@@ -32,6 +32,7 @@ class LockerManager {
                 if (new Date() - new Date(targetSession.endTime) > 0) {
                     return
                 }
+                console.log(`lock target website: ${target}`)
                 chrome.tabs.sendMessage(target.tabId, {
                     type: 'lock',
                     options: {
@@ -56,10 +57,9 @@ class LockerManager {
     startListening () {
         console.log('Start listening tab information ...')
         chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-            console.log(request)
             switch (request.type) {
                 case 'ping':
-                    this.pong(request)
+                    this.pong(request, sender)
                     break
                 case 'client_info':
                     this.client = request.options
@@ -82,23 +82,30 @@ class LockerManager {
         })
     }
 
-    pong (request) {
+    pong (request, sender) {
+        const urlInstance= new URL(sender.url)
+        const host = urlInstance.host
+        console.log(host)
+
         // Send pong message directly.
-        chrome.runtime.sendMessage({
-            type: 'pong'
+        chrome.tabs.sendMessage(sender.tab.id, {
+            type: 'pong',
+            options: {
+                tabId: sender.tab.id
+            }
         })
         // Save the current tab into session.
-        const targetSession = this.sessions.find(target => target.regexp.match(request.options.host) !== -1)
+        const targetSession = this.sessions.find(target => host.match(target.regexp))
         if (!targetSession) {
             return
         }
         // Remove the session if current time surpass the end time.
-        if (targetSession.endTime && new Date() - new Date(target.endTime) > 0) {
+        if (targetSession.endTime && new Date - new Date(targetSession.endTime) > 0) {
             this.removeSession(request)
             return
         }
         // Send lock message to tab
-        chrome.runtime.sendMessage({
+        chrome.tabs.sendMessage(sender.tab.id, {
             type: 'lock',
             options: {
                 endTime: targetSession.endTime
@@ -107,15 +114,24 @@ class LockerManager {
     }
 
     addSession (request) {
-        this.sessions.push({
-            host: request.options.host,
-            tabs: [request.options.tabId],
-            regexp: new RegExp(`^(https|http):\/\/${request.options.host}`)
-        })
+        // If there is already has the same session which has identical host, then just update the endTime and tabs
+        const existSession = this.sessions.find(target => target.host === request.options.host)
+        if (existSession) {
+            existSession.endTime = request.options.endTime
+            existSession.tabs.push(request.options.tabId)
+        } else {
+            this.sessions.push({
+                host: request.options.host,
+                tabs: [request.options.tabId],
+                regexp: new RegExp(request.options.host)
+            })
+        }
+        // Save the session into storage.
+        window.localStorage['sessions'] = JSON.stringify(this.sessions)
     }
 
     removeSession (request) {
-        const index = this.sessions.findIndex(target => target.regexp.match(request.options.host))
+        const index = this.sessions.findIndex(target => request.options.host.match(target.regexp))
         if (index === -1) {
             return
         }
@@ -123,4 +139,8 @@ class LockerManager {
     }
 }
 
-export default new LockerManager([])
+export default new LockerManager([{
+    host: 'www.facebook.com',
+    endTime: new Date((new Date()).getTime() + 1000 * 60 * 1),
+    regexp: new RegExp(`www.facebook.com`)
+}])
