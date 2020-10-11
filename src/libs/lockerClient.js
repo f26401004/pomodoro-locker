@@ -1,7 +1,8 @@
 import Timer from "./timer"
 
 const pomodoroTemplate = `
-    <div style="width: 100vw; height: 100vh; display: flex; justify-items: center; justify-content: center; align-items: center; align-content: center;">
+    <div style="width: 100vw; height: 100vh; display: flex; justify-items: center; justify-content: center; align-items: center; align-content: center; color: #3f51b5; font-size: 24px;">
+        <img />
         <time id="displayTimeString"></time>
     </div>
 `
