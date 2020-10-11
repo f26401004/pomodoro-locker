@@ -1,3 +1,8 @@
+export const setContext = payload => ({
+    type: 'SET_CONTEXT',
+    payload
+})
+
 export const createContext = payload => ({
     type: 'CREATE_CONTEXT',
     payload

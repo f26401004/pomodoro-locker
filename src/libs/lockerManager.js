@@ -169,7 +169,7 @@ class LockerManager {
 
 export default new LockerManager({
     'test_context_123': {
-        title: 'Test Context',
+        title: 'Test Context 123',
         sessions: [{
             id: 'test_session_123',
             host: 'www.facebook.com',

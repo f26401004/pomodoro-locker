@@ -11,16 +11,20 @@ import DeleteIcon from '@material-ui/icons/Delete'
 
 // connect and pass the redux action into component
 import { connect } from 'react-redux'
-import { createContext, updateContext, createSessionToContext, updateSessionInContext, deleteSessionInContext, deleteContext } from '../../redux/actions/Context.js'
+import { setContext, createContext, updateContext, createSessionToContext, updateSessionInContext, deleteSessionInContext, deleteContext } from '../../redux/actions/Context.js'
 import { Collapse, Grid, List, ListSubheader, Paper, TextField } from '@material-ui/core'
 
 import ContextListItem from './ContextListItem.js'
+
+import RuntimeWrapper from '../../../libs/runtimeWrapper.js'
+
 
 const mapStateToProps = state => ({
   context: state.context
 })
 const mapDispatchToProps = dispatch => {
   return {
+    setContext: target => dispatch(setContext(target)),
     createContext: target => dispatch(createContext(target)),
     updateContext: target => dispatch(updateContext(target)),
     createSessionToContext: target => dispatch(createSessionToContext(target)),
@@ -117,6 +121,14 @@ class ManageTab extends React.PureComponent {
     this.selectContext = this.selectContext.bind(this)
     this.unselectContext = this.unselectContext.bind(this)
     this.handleSearchKeyChange = this.handleSearchKeyChange.bind(this)
+  }
+
+  componentDidMount () {
+    // Fetch the context information from background
+    RuntimeWrapper.sendMessage({ type: 'get_context' }).then(result => {
+      console.log(result)
+      this.props.setContext(result.options.contexts)
+    })
   }
 
   selectContext (contextID) {

@@ -24,5 +24,10 @@ export default (state = {
     }
   }
 }, action) => {
-  return state
+  switch (action.type) {
+    case 'SET_CONTEXT':
+      return action.payload
+    default:
+      return state
+  }
 }

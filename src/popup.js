@@ -1,9 +1,9 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import Routes from './routes.js'
 import { Provider } from 'react-redux'
-import store from './redux'
-import './styles/index.css'
+import Routes from './app/routes.js'
+import store from './app/redux'
+import './app/styles/index.css'
 
 window.__POMODORO__ = {
   client: null

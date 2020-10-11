@@ -9,7 +9,7 @@ module.exports = {
     entry: {
         background: [path.join(SRC_DIR, 'background.js')],
         content: [path.join(SRC_DIR, 'content.js')],
-        index: [path.join(SRC_DIR, 'index.js')]
+        popup: [path.join(SRC_DIR, 'popup.js')]
     },
     output: {
         path: DIST_DIR,
@@ -32,7 +32,7 @@ module.exports = {
             patterns: [
                 { from: path.join(SRC_DIR, 'manifest.json') },
                 { from: path.join(SRC_DIR, 'icons/'), to: './icons' },
-                { from: path.join(SRC_DIR, 'index.html') },
+                { from: path.join(SRC_DIR, 'popup.html') },
                 { from: path.join(SRC_DIR, 'extra'), to: './' }
             ]
         })
