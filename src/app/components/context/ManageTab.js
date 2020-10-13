@@ -57,6 +57,9 @@ const styles = theme => ({
 
 // HOS for operation container
 function OperationContainer (props) {
+  const total = Object.values(props.selectedContextsInID).reduce((result, target) => {
+    return result + target.length
+  }, 0)
   return (
     <Paper elevation={0}>
       <Grid container alignContent='center' alignItems='center' >
@@ -75,7 +78,7 @@ function OperationContainer (props) {
           </Tooltip>
         </Grid>
         <Grid item xs={4} style={{ textAlign: 'right' }}>
-          <label className={props.classes.operationLabel}> {`選擇 ${props.selectedContextsID.length} 項`} </label>
+          <label className={props.classes.operationLabel}> {`選擇 ${total} 項`} </label>
         </Grid>
       </Grid>
     </Paper>
@@ -84,7 +87,8 @@ function OperationContainer (props) {
 
 // HOC for virtualized list row
 function ListRow ({ index, style, data }) {
-  const { contexts, filteredContextsID, selectedContextsID, selectContext, unselectContext } = data
+  const { contexts, filteredContextsID, selectedContextsInID, selectContext, selectSession } = data
+  const selectedContexts = Object.keys(selectedContextsInID)
   const targetContextID = filteredContextsID[index]
   const targetContext = contexts[targetContextID]
   return (
@@ -93,10 +97,10 @@ function ListRow ({ index, style, data }) {
         key={`context-${index}-${targetContextID}`}
         context={targetContext}
         contextID={targetContextID}
-        isDisplayCheckbox={selectedContextsID.length > 0}
-        checked={selectedContextsID.includes(targetContextID)}
-        onSelect={selectContext}
-        onUnselect={unselectContext} />
+        isDisplayCheckbox={selectedContexts.length > 0}
+        checked={selectedContexts.includes(targetContextID)}
+        onSelectContext={selectContext}
+        onSelectSession={selectSession} />
     </div>
   )
 }
@@ -113,36 +117,50 @@ class ManageTab extends React.PureComponent {
         listRef: React.createRef()
       },
       filteredContextsID: Object.keys(props.context),
-      selectedContextsID: [],
+      selectedContextsInID: {},
       searchKey: ''
     }
     console.log(this.state)
 
     this.selectContext = this.selectContext.bind(this)
-    this.unselectContext = this.unselectContext.bind(this)
+    this.selectSession = this.selectSession.bind(this)
     this.handleSearchKeyChange = this.handleSearchKeyChange.bind(this)
   }
 
   componentDidMount () {
     // Fetch the context information from background
-    RuntimeWrapper.sendMessage({ type: 'get_context' }).then(result => {
-      console.log(result)
-      this.props.setContext(result.options.contexts)
+    chrome.runtime.sendMessage({ type: 'get_context' })
+    // Set up the context information callback to update current 
+    RuntimeWrapper.addListener('context_information', (request) => {
+      this.props.setContext(request.options.contexts)
     })
   }
 
   selectContext (contextID) {
-    if (this.state.selectedContextsID.includes(contextID)) {
+    if (!this.state.selectedContextsInID[contextID]) {
+      this.setState({ selectedContextsInID: { [contextID]: Object.keys(this.props.context[contextID].sessions) } })
       return
     }
-    this.setState({ selectedContextsID: [...this.state.selectedContextsID, contextID] })
+    const {[contextID]: value, ...rest } = this.state.selectedContextsInID
+    this.setState({ selectedContextsInID: rest })
   }
 
-  unselectContext (contextID) {
-    if (!this.state.selectedContextsID.includes(contextID)) {
-      return
+  selectSession (contextID, sessionID) {
+    if (!this.state.selectedContextsInID[contextID]) {
+      this.setState({
+        selectedContextsInID: {
+          [contextID]: [],
+          ...this.state.selectedContextsInID}
+        })
     }
-    this.setState({ selectedContextsID: this.state.selectedContextsID.filter(target => target !== contextID) })
+
+    if (!this.state.selectedContextsInID[contextID].includes(sessionID)) {
+      this.setState({
+        selectedContextsInID: {
+          [contextID]: [sessionID, ...this.state.selectedContextsInID[contextID]],
+          ...this.state.selectedContextsInID }
+        })
+    }
   }
 
   handleSearchKeyChange (event) {
@@ -183,8 +201,8 @@ class ManageTab extends React.PureComponent {
                 <ListSubheader
                   className={classes.header}
                   key="operation-container">
-                  <Collapse in={this.state.selectedContextsID.length > 0} mountOnEnter unmountOnExit style={{ transformOrigin: '0 0 0' }} timeout={100}>
-                    <OperationContainer classes={classes} selectedContextsID={this.state.selectedContextsID} />
+                  <Collapse in={Object.keys(this.state.selectedContextsInID).length > 0} mountOnEnter unmountOnExit style={{ transformOrigin: '0 0 0' }} timeout={100}>
+                    <OperationContainer classes={classes} selectedContextsInID={this.state.selectedContextsInID} />
                   </Collapse>
                 </ListSubheader>
                 <AutoSizer>
@@ -200,9 +218,9 @@ class ManageTab extends React.PureComponent {
                             itemData={{
                               contexts: context,
                               filteredContextsID: this.state.filteredContextsID,
-                              selectedContextsID: this.state.selectedContextsID,
+                              selectedContextsInID: this.state.selectedContextsInID,
                               selectContext: this.selectContext,
-                              unselectContext: this.unselectContext
+                              selectSession: this.selectSession
                             }}
                             style={{ overflow: false }}
                             itemSize={20}>

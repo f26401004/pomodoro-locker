@@ -158,18 +158,28 @@ class LockerManager {
     }
 
     removeSession (request) {
+        console.log(request)
         const targetContext = this.contexts[request.options.contextID]
         const index = targetContext.sessions.findIndex(target => request.options.host.match(target.regexp))
         if (index === -1) {
             return
         }
         targetContext.sessions.splice(index, 1)
+        // Save current context into local storage
+        window.localStorage['contexts'] = JSON.stringify(this.contexts)
+        // Send the current context to popup for update
+        chrome.runtime.sendMessage({
+            type: 'context_information',
+            options: {
+                contexts: this.contexts
+            }
+        })
     }
 }
 
 export default new LockerManager({
     'test_context_123': {
-        title: 'Test Context 123',
+        title: 'Test Context',
         sessions: [{
             id: 'test_session_123',
             host: 'www.facebook.com',
