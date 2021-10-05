@@ -56,7 +56,6 @@ class ContextListItem extends React.PureComponent {
   }
 
   static getDerivedStateFromProps(props, state) {
-    console.log(props, state);
     if (props.isDisplayCheckbox !== state.isDisplayCheckbox) {
       state.isDisplayCheckbox = props.isDisplayCheckbox;
       return state;
@@ -65,18 +64,12 @@ class ContextListItem extends React.PureComponent {
   }
 
   handleOnClick(event) {
-    console.log("context list item:", this.state);
     this.setState({ isOpen: !this.state.isOpen });
   }
 
   handleOnCheckboxClick(event) {
     event.stopPropagation();
     this.props.onSelectContext(this.props.contextID);
-    // Open the session list direclty only if checkbox checked
-    if (event.target.checked) {
-      this.setState({ isOpen: true });
-      console.log("session:", this.props.context.sessions);
-    }
   }
 
   render() {

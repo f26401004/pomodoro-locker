@@ -133,7 +133,6 @@ function ListRow({ index, style, data }) {
   } = data;
   const targetContextID = filteredContextsID[index];
   const targetContext = contexts[targetContextID];
-  console.log("contexts", contexts);
   return (
     <div style={style}>
       <ContextListItem
@@ -162,7 +161,6 @@ class ManageTab extends React.PureComponent {
       selectedContextsInID: [],
       searchKey: "",
     };
-    console.log(this.state);
 
     this.handleOnSelectContext = this.handleOnSelectContext.bind(this);
     this.handleOnCopy = this.handleOnCopy.bind(this);
@@ -185,8 +183,6 @@ class ManageTab extends React.PureComponent {
     const targetIndex = this.state.selectedContextsInID.findIndex(
       (id) => id === contextID
     );
-    console.log(this.state.selectedContextsInID);
-    console.log(targetIndex, contextID);
     if (targetIndex === -1) {
       this.setState({
         selectedContextsInID: [...this.state.selectedContextsInID, contextID],
@@ -197,7 +193,6 @@ class ManageTab extends React.PureComponent {
       (target) => target !== contextID
     );
     this.setState({ selectedContextsInID: filtered });
-    console.log(this.state.selectedContextsInID);
   }
 
   handleOnCopy() {}

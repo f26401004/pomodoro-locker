@@ -22,7 +22,6 @@ const styles = (theme) => ({
 class ContextSessionItem extends React.PureComponent {
   render() {
     const { classes, session } = this.props;
-    console.log(session);
     return (
       <ListItem dense className={classes.root} style={{ height: "48px" }}>
         <Grid

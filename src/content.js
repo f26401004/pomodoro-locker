@@ -1,13 +1,12 @@
-import LockerClient from './libs/lockerClient.js'
+import LockerClient from "./libs/lockerClient.js";
 
-let client = null
+let client = null;
 
-window.addEventListener('load', () => {
+window.addEventListener("load", () => {
   // Initialize the locker client
-  client = new LockerClient(window.location.href)
-  client.startListening()
-  console.log('test')
+  client = new LockerClient(window.location.href);
+  client.startListening();
   chrome.runtime.sendMessage({
-    type: 'ping'
-  })
-})
+    type: "ping",
+  });
+});
