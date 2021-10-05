@@ -1,5 +1,6 @@
 import React from "react";
 import { withStyles } from "@material-ui/core/styles";
+import Grid from "@material-ui/core/Grid";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 
@@ -21,8 +22,9 @@ const styles = (theme) => ({
 class ContextSessionItem extends React.PureComponent {
   render() {
     const { classes, session } = this.props;
+    console.log(session);
     return (
-      <ListItem button className={classes.root} style={{ height: "48px" }}>
+      <ListItem dense className={classes.root} style={{ height: "48px" }}>
         <Grid
           container
           spacing={2}

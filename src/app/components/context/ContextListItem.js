@@ -75,6 +75,7 @@ class ContextListItem extends React.PureComponent {
     // Open the session list direclty only if checkbox checked
     if (event.target.checked) {
       this.setState({ isOpen: true });
+      console.log("session:", this.props.context.sessions);
     }
   }
 
@@ -130,18 +131,22 @@ class ContextListItem extends React.PureComponent {
             </Grid>
           </Grid>
         </ListItem>
-        <Collapse in={this.isOpen} timeout={100} mountOnEnter unmountOnExit>
-          <List className={this.props.classes.root}>
-            {Object.keys(context.sessions).map((key) => {
+        <Collapse
+          in={this.state.isOpen}
+          timeout={100}
+          mountOnEnter
+          unmountOnExit
+        >
+          <List width="100%" style={{ padding: "0" }}>
+            {context.sessions.map((session) => (
               <ContextSessionItem
-                key={key}
-                session={context.sessions[key]}
+                key={session.id}
+                session={session}
                 contextID={this.props.contextID}
-                sessionID={key}
-              />;
-            })}
+                sessionID={session.id}
+              />
+            ))}
           </List>
-          <ListItem></ListItem>
         </Collapse>
       </React.Fragment>
     );

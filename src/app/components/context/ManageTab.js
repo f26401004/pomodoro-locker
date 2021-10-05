@@ -59,12 +59,7 @@ const styles = (theme) => ({
 
 // HOS for operation container
 function OperationContainer(props) {
-  const total = Object.values(props.selectedContextsInID).reduce(
-    (result, target) => {
-      return result + target.length;
-    },
-    0
-  );
+  const total = props.selectedContextsInID.length;
   return (
     <Paper elevation={0}>
       <Grid container alignContent="center" alignItems="center">
@@ -136,17 +131,17 @@ function ListRow({ index, style, data }) {
     selectedContextsInID,
     onSelectContext,
   } = data;
-  const selectedContexts = Object.keys(selectedContextsInID);
   const targetContextID = filteredContextsID[index];
   const targetContext = contexts[targetContextID];
+  console.log("contexts", contexts);
   return (
     <div style={style}>
       <ContextListItem
         key={`context-${index}-${targetContextID}`}
         context={targetContext}
         contextID={targetContextID}
-        isDisplayCheckbox={selectedContexts.length > 0}
-        checked={selectedContexts.includes(targetContextID)}
+        isDisplayCheckbox={selectedContextsInID.length > 0}
+        checked={selectedContextsInID.includes(targetContextID)}
         onSelectContext={onSelectContext}
       />
     </div>
@@ -164,7 +159,7 @@ class ManageTab extends React.PureComponent {
         listRef: React.createRef(),
       },
       filteredContextsID: Object.keys(props.context),
-      selectedContextsInID: {},
+      selectedContextsInID: [],
       searchKey: "",
     };
     console.log(this.state);
@@ -187,16 +182,22 @@ class ManageTab extends React.PureComponent {
   }
 
   handleOnSelectContext(contextID) {
-    if (!this.state.selectedContextsInID[contextID]) {
+    const targetIndex = this.state.selectedContextsInID.findIndex(
+      (id) => id === contextID
+    );
+    console.log(this.state.selectedContextsInID);
+    console.log(targetIndex, contextID);
+    if (targetIndex === -1) {
       this.setState({
-        selectedContextsInID: {
-          [contextID]: Object.keys(this.props.context[contextID].sessions),
-        },
+        selectedContextsInID: [...this.state.selectedContextsInID, contextID],
       });
       return;
     }
-    const { [contextID]: value, ...rest } = this.state.selectedContextsInID;
-    this.setState({ selectedContextsInID: rest });
+    const filtered = this.state.selectedContextsInID.filter(
+      (target) => target !== contextID
+    );
+    this.setState({ selectedContextsInID: filtered });
+    console.log(this.state.selectedContextsInID);
   }
 
   handleOnCopy() {}
@@ -223,7 +224,7 @@ class ManageTab extends React.PureComponent {
             target[1].title
               .toLowerCase()
               .indexOf(event.target.value.toLowerCase()) !== -1 ||
-            Object.values(target[1].sessions).find(
+            target[1].sessions.find(
               (iter) =>
                 iter.host
                   .toLowerCase()
