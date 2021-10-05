@@ -1,9 +1,10 @@
 import React from "react";
-import { withStyles } from "@material-ui/core/styles";
+import { makeStyles, withStyles } from "@material-ui/core/styles";
 import { FixedSizeList } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { Scrollbars } from "react-custom-scrollbars";
 import Tooltip from "@material-ui/core/Tooltip";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 import IconButton from "@material-ui/core/IconButton";
 import Fab from "@material-ui/core/Fab";
@@ -12,6 +13,10 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import CopyIcon from "@material-ui/icons/FileCopy";
 import EditIcon from "@material-ui/icons/Edit";
 import AddIcon from "@material-ui/icons/Add";
+
+import Fade from "@material-ui/core/Fade";
+
+import RuntimeWrapper from "../../../libs/runtimeWrapper.js";
 
 // connect and pass the redux action into component
 import { connect } from "react-redux";
@@ -24,8 +29,6 @@ import {
 import { Collapse, Grid, List, Paper, TextField } from "@material-ui/core";
 
 import ContextListItem from "./ContextListItem.js";
-
-import RuntimeWrapper from "../../../libs/runtimeWrapper.js";
 
 const mapStateToProps = (state) => ({
   context: state.context,
@@ -135,15 +138,62 @@ function ListRow({ index, style, data }) {
   } = data;
   const targetContextID = filteredContextsID[index];
   const targetContext = contexts[targetContextID];
+  console.log(targetContext);
   return (
-    <div style={style}>
+    <div style={style} key={`context-${index}-${targetContextID}`}>
       <ContextListItem
-        key={`context-${index}-${targetContextID}`}
         context={targetContext}
         contextID={targetContextID}
         isDisplayCheckbox={selectedContextsInID.length > 0}
         checked={selectedContextsInID.includes(targetContextID)}
         onSelectContext={onSelectContext}
+      />
+    </div>
+  );
+}
+
+const circularProgressStyles = makeStyles((theme) => ({
+  root: {
+    position: "relative",
+  },
+  bottom: {
+    color: theme.palette.grey[theme.palette.type === "light" ? 200 : 700],
+  },
+  top: {
+    color: "#1a90ff",
+    animationDuration: "550ms",
+    position: "absolute",
+    left: 0,
+  },
+  circle: {
+    strokeLinecap: "round",
+  },
+}));
+
+// HOC for circular loading progress
+function CustomCircularProgress(props) {
+  const classes = circularProgressStyles();
+
+  return (
+    <div className={classes.root}>
+      <CircularProgress
+        variant="determinate"
+        className={classes.bottom}
+        size={40}
+        thickness={4}
+        {...props}
+        value={100}
+      />
+      <CircularProgress
+        variant="indeterminate"
+        disableShrink
+        className={classes.top}
+        classes={{
+          circle: classes.circle,
+        }}
+        size={40}
+        thickness={4}
+        {...props}
       />
     </div>
   );
@@ -162,6 +212,7 @@ class ManageTab extends React.PureComponent {
       filteredContextsID: Object.keys(props.context),
       selectedContextsInID: [],
       searchKey: "",
+      isLoading: true,
     };
 
     // Bind the handle functions.
@@ -172,15 +223,6 @@ class ManageTab extends React.PureComponent {
     this.handleOnEdit = this.handleOnEdit.bind(this);
     this.handleOnSelectAll = this.handleOnSelectAll.bind(this);
     this.handleOnSearchKeyChange = this.handleOnSearchKeyChange.bind(this);
-  }
-
-  componentDidMount() {
-    // Fetch the context information from background
-    chrome.runtime.sendMessage({ type: "get_context" });
-    // Set up the context information callback to update current
-    RuntimeWrapper.addListener("context_information", (request) => {
-      this.props.setContext(request.options.contexts);
-    });
   }
 
   handleOnSelectContext(contextID) {
@@ -197,6 +239,20 @@ class ManageTab extends React.PureComponent {
       (target) => target !== contextID
     );
     this.setState({ selectedContextsInID: filtered });
+  }
+
+  componentWillMount() {
+    // Set up the context information callback to update current
+    RuntimeWrapper.addListener("context_information", (request) => {
+      console.log(request.options.contexts);
+      this.props.setContext(request.options.contexts);
+      this.setState({
+        isLoading: false,
+        filteredContextsID: Object.keys(request.options.contexts),
+      });
+    });
+    // Fetch the context information from background
+    chrome.runtime.sendMessage({ type: "get_context" });
   }
 
   handleOnCreate() {}
@@ -239,6 +295,7 @@ class ManageTab extends React.PureComponent {
   render() {
     // Extract the context object from props
     const { context, classes } = this.props;
+    console.log(context);
     // Extract the handler from props
     const { deleteContext } = this.props;
     return (
@@ -278,41 +335,64 @@ class ManageTab extends React.PureComponent {
               />
             </Collapse>
           </Grid>
-          <Grid container item style={{ height: "calc(100% - 56px)" }}>
-            <List style={{ width: "100%" }}>
-              <Scrollbars
-                onScroll={this.handleScroll}
-                autoHide
-                autoHideTimeout={1000}
-                autoHideDuration={500}
-              >
-                <AutoSizer>
-                  {({ height, width }) => {
-                    return (
-                      <React.Fragment>
-                        <FixedSizeList
-                          height={height - 16}
-                          width={width - 16}
-                          ref={this.state.listRef}
-                          itemCount={this.state.filteredContextsID.length}
-                          itemData={{
-                            contexts: context,
-                            filteredContextsID: this.state.filteredContextsID,
-                            selectedContextsInID:
-                              this.state.selectedContextsInID,
-                            onSelectContext: this.handleOnSelectContext,
-                          }}
-                          style={{ overflow: false }}
-                          itemSize={20}
-                        >
-                          {ListRow}
-                        </FixedSizeList>
-                      </React.Fragment>
-                    );
-                  }}
-                </AutoSizer>
-              </Scrollbars>
-            </List>
+          <Grid
+            container
+            item
+            style={{ height: "calc(100% - 48px)" }}
+            justify="center"
+            alignContent="center"
+          >
+            <Fade
+              in={this.state.isLoading}
+              mountOnEnter
+              unmountOnExit
+              style={{ position: "absolute" }}
+              timeout={200}
+            >
+              <CustomCircularProgress />
+            </Fade>
+            <Fade
+              in={!this.state.isLoading}
+              mountOnEnter
+              unmountOnExit
+              timeout={200}
+            >
+              <List style={{ width: "100%", height: "calc(100% - 16px)" }}>
+                <Scrollbars
+                  onScroll={this.handleScroll}
+                  autoHide
+                  autoHideTimeout={1000}
+                  autoHideDuration={500}
+                >
+                  <AutoSizer>
+                    {({ height, width }) => {
+                      console.log(context);
+                      return (
+                        <React.Fragment>
+                          <FixedSizeList
+                            height={height - 16}
+                            width={width - 16}
+                            ref={this.state.listRef}
+                            itemCount={this.state.filteredContextsID.length}
+                            itemData={{
+                              contexts: context,
+                              filteredContextsID: this.state.filteredContextsID,
+                              selectedContextsInID:
+                                this.state.selectedContextsInID,
+                              onSelectContext: this.handleOnSelectContext,
+                            }}
+                            style={{ overflow: false }}
+                            itemSize={20}
+                          >
+                            {ListRow}
+                          </FixedSizeList>
+                        </React.Fragment>
+                      );
+                    }}
+                  </AutoSizer>
+                </Scrollbars>
+              </List>
+            </Fade>
           </Grid>
           <Fab
             color="primary"

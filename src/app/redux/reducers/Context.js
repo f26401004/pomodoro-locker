@@ -12,26 +12,11 @@
  * }
  */
 
-export default (
-  state = {
-    test_context_123: {
-      title: "Test Context",
-      startTime: new Date(),
-      endTime: new Date(new Date().getTime() + 1000 * 60 * 1),
-      sessions: [
-        {
-          id: "test_session_123",
-          host: "facebook.com",
-        },
-      ],
-    },
-  },
-  action
-) => {
+export default (state = {}, action) => {
   switch (action.type) {
     case "SET_CONTEXT":
       console.log(action.payload);
-      return action.payload;
+      return { ...action.payload };
     default:
       return state;
   }

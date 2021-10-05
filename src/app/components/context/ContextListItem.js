@@ -83,6 +83,11 @@ function LinearProgressWithLabel(props) {
 class ContextListItem extends React.PureComponent {
   constructor(props) {
     super(props);
+    const totalTime =
+      new Date(props.context.endTime) - new Date(props.context.startTime);
+    const currentTime = new Date(props.context.endTime) - new Date();
+    const progress = Math.min((1 - currentTime / totalTime) * 100, 100);
+
     this.state = {
       isDisplayCheckbox: props.isDisplayCheckbox,
       isOpen: false,
@@ -100,7 +105,7 @@ class ContextListItem extends React.PureComponent {
           return;
         }
       }, 1000),
-      progress: 0,
+      progress: progress,
     };
 
     this.handleOnCheckboxClick = this.handleOnCheckboxClick.bind(this);
