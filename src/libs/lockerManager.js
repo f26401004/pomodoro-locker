@@ -10,7 +10,7 @@ class LockerManager {
       this.contexts = JSON.parse(window.localStorage["contexts"]);
       // Filter out the expired records
       Object.keys(this.contexts).forEach((key) => {
-        this.contexts[key].sessions = this.contexts[key].sessions.filter(
+        this.contexts[key] = this.contexts[key].filter(
           (target) => new Date() - new Date(target.endTime) < 0
         );
       });
@@ -28,17 +28,17 @@ class LockerManager {
           const targetSession = tempContexts[i].sessions.find(
             (iter) => url.host === iter.host
           );
-          if (!targetSession || !targetSession.endTime) {
+          if (!targetSession || !tempContexts[i].endTime) {
             continue;
           }
-          if (new Date() - new Date(targetSession.endTime) > 0) {
+          if (new Date() - new Date(tempContexts[i].endTime) > 0) {
             continue;
           }
           console.log(`lock target website: `, target);
           chrome.tabs.sendMessage(target.id, {
             type: "lock",
             options: {
-              endTime: target.endTime,
+              endTime: tempContexts[i].endTime,
             },
           });
           break;
@@ -118,10 +118,7 @@ class LockerManager {
         return;
       }
       // Remove the session if current time surpass the end time.
-      if (
-        targetSession.endTime &&
-        new Date() - new Date(targetSession.endTime) > 0
-      ) {
+      if (context.endTime && new Date() - new Date(context.endTime) > 0) {
         this.removeSession(request);
         return;
       }
@@ -129,7 +126,7 @@ class LockerManager {
       chrome.tabs.sendMessage(sender.tab.id, {
         type: "lock",
         options: {
-          endTime: targetSession.endTime,
+          endTime: context.endTime,
         },
       });
     });
@@ -153,14 +150,12 @@ class LockerManager {
       (target) => target.host === request.options.host
     );
     if (existSession) {
-      existSession.endTime = request.options.endTime;
       existSession.tabs.push(request.options.tabId);
     } else {
       this.sessions.push({
         id: uuidv4(),
         host: request.options.host,
         tabs: [request.options.tabId],
-        endTime: request.options.endTime,
         regexp: new RegExp(request.options.host),
       });
     }
@@ -192,12 +187,13 @@ class LockerManager {
 export default new LockerManager({
   test_context_123: {
     title: "Test Context",
+    startTime: new Date(),
+    endTime: new Date(new Date().getTime() + 1000 * 60 * 1),
     sessions: [
       {
         id: "test_session_123",
         host: "www.facebook.com",
         tabs: [],
-        endTime: new Date(new Date().getTime() + 1000 * 60 * 1),
         regexp: new RegExp(`www.facebook.com`),
       },
     ],

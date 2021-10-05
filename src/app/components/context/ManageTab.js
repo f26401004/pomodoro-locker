@@ -6,10 +6,12 @@ import { Scrollbars } from "react-custom-scrollbars";
 import Tooltip from "@material-ui/core/Tooltip";
 
 import IconButton from "@material-ui/core/IconButton";
+import Fab from "@material-ui/core/Fab";
 import CheckboxIcon from "@material-ui/icons/CheckBox";
 import DeleteIcon from "@material-ui/icons/Delete";
 import CopyIcon from "@material-ui/icons/FileCopy";
 import EditIcon from "@material-ui/icons/Edit";
+import AddIcon from "@material-ui/icons/Add";
 
 // connect and pass the redux action into component
 import { connect } from "react-redux";
@@ -57,7 +59,7 @@ const styles = (theme) => ({
   },
 });
 
-// HOS for operation container
+// HOC for operation container
 function OperationContainer(props) {
   const total = props.selectedContextsInID.length;
   return (
@@ -162,6 +164,8 @@ class ManageTab extends React.PureComponent {
       searchKey: "",
     };
 
+    // Bind the handle functions.
+    this.handleOnCreate = this.handleOnCreate.bind(this);
     this.handleOnSelectContext = this.handleOnSelectContext.bind(this);
     this.handleOnCopy = this.handleOnCopy.bind(this);
     this.handleOnDelete = this.handleOnDelete.bind(this);
@@ -194,6 +198,8 @@ class ManageTab extends React.PureComponent {
     );
     this.setState({ selectedContextsInID: filtered });
   }
+
+  handleOnCreate() {}
 
   handleOnCopy() {}
 
@@ -285,7 +291,7 @@ class ManageTab extends React.PureComponent {
                     return (
                       <React.Fragment>
                         <FixedSizeList
-                          height={height}
+                          height={height - 16}
                           width={width - 16}
                           ref={this.state.listRef}
                           itemCount={this.state.filteredContextsID.length}
@@ -308,6 +314,19 @@ class ManageTab extends React.PureComponent {
               </Scrollbars>
             </List>
           </Grid>
+          <Fab
+            color="primary"
+            aria-label="create"
+            size="medium"
+            style={{
+              left: "calc(100% - 80px)",
+              top: "calc(100% - 80px)",
+              position: "fixed",
+            }}
+            onClick={this.handleOnCreate}
+          >
+            <AddIcon></AddIcon>
+          </Fab>
         </Grid>
       </div>
     );

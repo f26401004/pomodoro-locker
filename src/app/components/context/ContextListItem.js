@@ -5,11 +5,19 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import AccessAlarmIcon from "@material-ui/icons/AccessAlarm";
+import LinearProgress from "@material-ui/core/LinearProgress";
+import Box from "@material-ui/core/Box";
+
+import FolderIcon from "@material-ui/icons/Folder";
+import FolderOpenIcon from "@material-ui/icons/FolderOpen";
+
 import Checkbox from "@material-ui/core/Checkbox";
 import Grid from "@material-ui/core/Grid";
 import Collapse from "@material-ui/core/Collapse";
+import Fade from "@material-ui/core/Fade";
 import ContextSessionItem from "./ContextSessionItem.js";
+
+import blue from "@material-ui/core/colors/blue";
 
 const styles = (theme) => ({
   root: {
@@ -25,8 +33,8 @@ const styles = (theme) => ({
     textOverflow: "ellipsis",
   },
   checkbox: {
-    width: "36px",
-    height: "36px",
+    width: "24px",
+    height: "24px",
     transition: "opacity 100ms ease-in-out",
     opacity: 0.2,
     color: "#4285f4",
@@ -43,12 +51,56 @@ const styles = (theme) => ({
   },
 });
 
+const BorderLinearProgress = withStyles((theme) => ({
+  root: {
+    height: 48,
+  },
+  colorPrimary: {
+    backgroundColor:
+      theme.palette.grey[theme.palette.type === "light" ? 200 : 700],
+  },
+  bar: {
+    backgroundColor: blue[200],
+  },
+}))(LinearProgress);
+
+// HOC for progress bar
+function LinearProgressWithLabel(props) {
+  return (
+    <Box
+      display="flex"
+      alignItems="center"
+      width="100%"
+      style={{ position: "absolute" }}
+    >
+      <Box width="100%">
+        <BorderLinearProgress variant="determinate" {...props} />
+      </Box>
+    </Box>
+  );
+}
+
 class ContextListItem extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       isDisplayCheckbox: props.isDisplayCheckbox,
       isOpen: false,
+      timer: setInterval(() => {
+        const totalTime =
+          new Date(props.context.endTime) - new Date(props.context.startTime);
+        const currentTime = new Date(props.context.endTime) - new Date();
+        const progress = Math.min((1 - currentTime / totalTime) * 100, 100);
+
+        this.setState({ progress });
+        if (progress >= 100) {
+          clearInterval(this.state.timer);
+          this.setState({ timer: null });
+          // TODO: remove the records
+          return;
+        }
+      }, 1000),
+      progress: 0,
     };
 
     this.handleOnCheckboxClick = this.handleOnCheckboxClick.bind(this);
@@ -63,6 +115,10 @@ class ContextListItem extends React.PureComponent {
     return null;
   }
 
+  componentWillUnmount() {
+    clearInterval(this.state.timer);
+  }
+
   handleOnClick(event) {
     this.setState({ isOpen: !this.state.isOpen });
   }
@@ -75,8 +131,10 @@ class ContextListItem extends React.PureComponent {
   render() {
     const { classes } = this.props;
     const { checked, context } = this.props;
+
     return (
       <React.Fragment>
+        <LinearProgressWithLabel value={this.state.progress} />
         <ListItem
           button
           className={classes.root}
@@ -84,7 +142,9 @@ class ContextListItem extends React.PureComponent {
           style={{
             backgroundColor: checked ? "rgba(66, 33, 244, 0.18)" : null,
             height: "48px",
+            padding: "0 8px",
           }}
+          dense
         >
           <Grid
             container
@@ -93,24 +153,48 @@ class ContextListItem extends React.PureComponent {
             alignContent="center"
             alignItems="center"
           >
-            <Grid item xs={1}>
-              <ListItemIcon>
-                <AccessAlarmIcon
-                  className={checked ? classes.checkedStyle : null}
-                />
+            <Grid container item xs={10} justify="space-between">
+              <ListItemIcon style={{ minWidth: "36px" }}>
+                <Fade
+                  in={this.state.isOpen}
+                  mountOnEnter
+                  unmountOnExit
+                  style={{
+                    left: "8px",
+                    transformOrigin: "0 0 0",
+                    position: "absolute",
+                  }}
+                  timeout={100}
+                >
+                  <FolderOpenIcon
+                    className={checked ? classes.checkedStyle : ""}
+                  />
+                </Fade>
+                <Fade
+                  in={!this.state.isOpen}
+                  mountOnEnter
+                  unmountOnExit
+                  style={{
+                    left: "8px",
+                    transformOrigin: "0 0 0",
+                    position: "absolute",
+                  }}
+                  timeout={100}
+                >
+                  <FolderIcon className={checked ? classes.checkedStyle : ""} />
+                </Fade>
               </ListItemIcon>
-            </Grid>
-            <Grid item xs={9}>
               <ListItemText
                 primary={context.title}
                 classes={{
                   primary: `${classes.text} ${
-                    checked ? classes.checkedStyle : null
+                    checked ? classes.checkedStyle : ""
                   }`,
                 }}
+                style={{ margin: "0", alignContent: "center" }}
               />
             </Grid>
-            <Grid item xs={2}>
+            <Grid container item xs={2} justify="flex-end">
               <Checkbox
                 style={{ color: "#4285f4" }}
                 className={
