@@ -60,7 +60,7 @@ const BorderLinearProgress = withStyles((theme) => ({
       theme.palette.grey[theme.palette.type === "light" ? 200 : 700],
   },
   bar: {
-    backgroundColor: blue[200],
+    backgroundColor: blue[100],
   },
 }))(LinearProgress);
 

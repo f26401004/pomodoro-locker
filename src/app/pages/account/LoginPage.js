@@ -2,17 +2,12 @@ import React from "react";
 import { withStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
-import CardContent from "@material-ui/core/CardContent";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
-import { Link } from "react-router-dom";
 import Grid from "@material-ui/core/Grid";
 import Box from "@material-ui/core/Box";
-import TextField from "@material-ui/core/TextField";
-import InputAdornment from "@material-ui/core/InputAdornment";
 
-import AccountCircleIcon from "@material-ui/icons/AccountCircle";
-import LockIcon from "@material-ui/icons/Lock";
+import LogoIcon from "../../../icons/logo.svg";
 
 const WhiteTextTypography = withStyles({
   root: {
@@ -31,87 +26,49 @@ const styles = (theme) => ({
     width: "100%",
     height: "100%",
     background:
-      "linear-gradient(180deg, rgba(33,150,243,1) 0%, rgba(30,136,229,1) 60%, rgba(255,255,255,1) 60%, rgba(255,255,255,1) 100%)",
+      "linear-gradient(180deg, rgba(33,150,243,1) 0%, rgba(30,136,229,1) 72%, rgba(255,255,255,1) 72%, rgba(255,255,255,1) 100%)",
     padding: "36px",
     boxSizing: "border-box",
   },
   titleContainer: {
-    height: "40vh",
+    height: "55vh",
     paddingTop: "7vh !important",
     boxSizing: "border-box",
   },
   logo: {
-    backgroundColor: "white",
-    width: "96px",
-    height: "96px",
+    width: "156px",
+    height: "156px",
     borderRadius: "100%",
     border: "none",
     outline: "none",
   },
   cardContainer: {
     width: "90%",
-    height: "43vh",
+    height: "30vh",
     padding: "24px",
     boxSizing: "border-box",
+    marginBottom: "48px",
   },
 });
 
-const LoginCard = ({ classes }) => {
-  return (
-    <Card className={classes.cardContainer}>
-      <CardContent>
-        <Grid container item spacing={2} justify="center">
-          <Grid item>
-            <TextField
-              size="small"
-              label="Username"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <AccountCircleIcon />
-                  </InputAdornment>
-                ),
-              }}
-            ></TextField>
-          </Grid>
-          <Grid item>
-            <TextField
-              size="small"
-              label="Password"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <LockIcon />
-                  </InputAdornment>
-                ),
-              }}
-            ></TextField>
-          </Grid>
-        </Grid>
-      </CardContent>
-      <CardActions>
-        <Grid container spacing={1} direction="row">
-          <Grid item xs={12}>
-            <Button
-              variant="contained"
-              color="primary"
-              style={{ width: "100%" }}
-            >
-              Login
-            </Button>
-          </Grid>
-          <Grid item xs={12}>
-            <Link to="/account/register">
-              <Box textAlign="right">register</Box>
-            </Link>
-          </Grid>
-        </Grid>
-      </CardActions>
-    </Card>
-  );
-};
+class LoginPage extends React.PureComponent {
+  constructor(props) {
+    super(props);
 
-class LoginPage extends React.Component {
+    this.handleOnClickGoogleLogin = this.handleOnClickGoogleLogin.bind(this);
+    this.handleOnClickFacebookLogin =
+      this.handleOnClickFacebookLogin.bind(this);
+    this.handleOnClickTiwtterLogin = this.handleOnClickTiwtterLogin.bind(this);
+  }
+
+  handleOnClickGoogleLogin() {
+    chrome.runtime.sendMessage({ type: "signin-google" });
+  }
+  handleOnClickFacebookLogin() {
+    chrome.runtime.sendMessage({ type: "signin-facebook" });
+  }
+  handleOnClickTiwtterLogin() {}
+
   render() {
     const { classes } = this.props;
     return (
@@ -135,26 +92,58 @@ class LoginPage extends React.Component {
           className={classes.titleContainer}
         >
           <Grid item>
-            <img className={classes.logo} />
+            <img src={LogoIcon} className={classes.logo} />
           </Grid>
           <Grid item>
-            <WhiteTextTypography variant="h5" component="h2">
-              <Box textAlign="center">Pomodoro Locker</Box>
-            </WhiteTextTypography>
-            <WhiteTextSecondaryTypography>
-              <Box textAlign="center">Focus on your work</Box>
-            </WhiteTextSecondaryTypography>
+            <Box textAlign="center">
+              <WhiteTextTypography variant="h5" component="h2">
+                Pomodoro Locker
+              </WhiteTextTypography>
+            </Box>
+            <Box textAlign="center">
+              <WhiteTextSecondaryTypography>
+                Focus on your work
+              </WhiteTextSecondaryTypography>
+            </Box>
           </Grid>
         </Grid>
-        <Grid
-          item
-          container
-          xs={12}
-          className={classes.cardContainer}
-          justify="center"
-          alignItems="center"
-        >
-          <LoginCard classes={classes} />
+        <Grid item container xs={12} justify="center" alignItems="center">
+          <Card className={classes.cardContainer}>
+            <CardActions>
+              <Grid container spacing={1} direction="row">
+                <Grid item xs={12}>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    style={{ width: "100%" }}
+                    onClick={this.handleOnClickGoogleLogin}
+                  >
+                    Login with Google
+                  </Button>
+                </Grid>
+                <Grid item xs={12}>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    style={{ width: "100%" }}
+                    onClick={this.handleOnClickFacebookLogin}
+                  >
+                    Login with Facebook
+                  </Button>
+                </Grid>
+                <Grid item xs={12}>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    style={{ width: "100%" }}
+                    onClick={this.handleOnClickTiwtterLogin}
+                  >
+                    Login with Tiwtter
+                  </Button>
+                </Grid>
+              </Grid>
+            </CardActions>
+          </Card>
         </Grid>
       </Grid>
     );

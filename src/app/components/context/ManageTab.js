@@ -338,7 +338,7 @@ class ManageTab extends React.PureComponent {
           <Grid
             container
             item
-            style={{ height: "calc(100% - 48px)" }}
+            style={{ height: "calc(100% - 64px)" }}
             justify="center"
             alignContent="center"
           >

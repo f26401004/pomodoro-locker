@@ -165,6 +165,9 @@ class LockerManager {
 
   removeSession(request) {
     const targetContext = this.contexts[request.options.contextID];
+    if (!targetContext) {
+      return;
+    }
     const index = targetContext.sessions.findIndex((target) =>
       request.options.host.match(target.regexp)
     );
