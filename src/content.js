@@ -10,3 +10,5 @@ window.addEventListener("load", () => {
     type: "ping",
   });
 });
+
+console.log("test-sonar-cloud");
